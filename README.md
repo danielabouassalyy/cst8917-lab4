@@ -30,3 +30,97 @@ Youtube link:
        - **True** → nested **Condition** on `insights` array:
          - Contains `SuspiciousVendorActivity` →  Suspicious card  
          - Else →  Interesting card  
+
+### Function Overview `analyze_trip`
+
+- Setup & Imports
+ Registers the FunctionApp, allows anonymous HTTP calls, and pulls in logging/JSON libraries.
+
+
+```bash
+import azure.functions as func
+import logging, json
+
+app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
+
+```
+- Entry Point & Input Normalization
+Reads the raw request body as JSON.
+Ensures we always work with a list of trip objects, even if only one was sent.
+
+```bash
+@app.route(route="")
+def analyze_trip(req: func.HttpRequest) -> func.HttpResponse:
+    try:
+        input_data = req.get_json()
+        trips = input_data if isinstance(input_data, list) else [input_data]
+        results = []
+
+```
+- Extract & Convert Fields
+Pulls our nested trip payload out of the Event Hub envelope.
+Converts distance to a float, passenger count to an int, and payment type to string.
+
+```bash
+        for record in trips:
+            trip = record.get("ContentData", {})
+            vendor = trip.get("vendorID")
+            distance = float(trip.get("tripDistance", 0))
+            passenger_count = int(trip.get("passengerCount", 0))
+            payment = str(trip.get("paymentType"))
+```
+- Flagging Logic
+Builds a list of “insights” by checking each rule in turn:
+
+Long trips (>10 miles)
+
+Large groups (>4 pax)
+
+Cash payments ("2")
+
+Very short cash trips (<1 mile) flagged as suspicious
+
+```bash
+            insights = []
+            if distance > 10:
+                insights.append("LongTrip")
+            if passenger_count > 4:
+                insights.append("GroupRide")
+            if payment == "2":
+                insights.append("CashPayment")
+            if payment == "2" and distance < 1:
+                insights.append("SuspiciousVendorActivity")
+
+```
+- Result Construction
+Packages all extracted fields plus the computed insights into one object.
+Sets isInteresting true if any insights exist, and builds a human-readable summary.
+```bash
+            results.append({
+                "vendorID": vendor,
+                "tripDistance": distance,
+                "passengerCount": passenger_count,
+                "paymentType": payment,
+                "insights": insights,
+                "isInteresting": bool(insights),
+                "summary": f"{len(insights)} flags: {', '.join(insights)}" if insights else "Trip normal"
+            })
+```
+- Return Response
+Sends the full array of result objects back to the caller (the Logic App).
+```bash
+        return func.HttpResponse(
+            body=json.dumps(results),
+            status_code=200,
+            mimetype="application/json"
+        )
+
+```
+- Error Handling
+Catches any unexpected error, logs it, and returns a 400 with the error message.
+```bash
+    except Exception as e:
+        logging.error(f"Error processing trip data: {e}")
+        return func.HttpResponse(f"Error: {str(e)}", status_code=400)
+
+```
