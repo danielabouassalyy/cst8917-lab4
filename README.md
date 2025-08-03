@@ -18,7 +18,6 @@ Youtube link:
 
 ### Architecture Overview
 
-Our solution is a fully serverless, real-time pipeline:
 
 1. **Event Hub** (`eh-cst8917-trips`) collects incoming trip JSON messages.  
 2. **Logic App** (`la-cst8917-tripmonitor`) polls the hub every minute, or can be manually triggered for a demo.  
@@ -29,5 +28,5 @@ Our solution is a fully serverless, real-time pipeline:
      - **Condition** on `isInteresting`:
        - **False** →  “No Issues” Adaptive Card  
        - **True** → nested **Condition** on `insights` array:
-         - Contains `SuspiciousVendorActivity` → ⚠ Suspicious card  
+         - Contains `SuspiciousVendorActivity` →  Suspicious card  
          - Else →  Interesting card  
