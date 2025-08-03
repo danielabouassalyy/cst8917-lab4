@@ -1,2 +1,18 @@
-# cst8917-lab4
-CST8917 Lab 4 – Real-Time Trip Event Analysis
+# CST8917 Lab 4 – Real-Time Trip Event Analysis
+Student: Daniel Abou-Assaly
+Youtube link:
+
+## Azure Resources and How to Provision Them
+
+| Resource Name             | Type                                | Purpose                                                          | How to fill (portal steps)                                                                                                                          |
+|---------------------------|-------------------------------------|------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **ns-cst8917-lab4**       | Event Hubs Namespace                | Container for your `eh-cst8917-trips` Event Hub                  | 1. In Azure Portal, click **Create a resource** → search “Event Hubs Namespace”.<br>2. Name it `ns-cst8917-lab4`, choose your RG & region, SKU “Standard”.<br>3. Click **Review + create** → **Create**. |
+| **eh-cst8917-trips**      | Event Hub                           | Ingests trip JSON events                                         | 1. In **ns-cst8917-lab4** page, under **Entities**, click **+ Event hub**.<br>2. Name it `eh-cst8917-trips`, leave defaults, click **Create**.                                           |
+| **fa-cst8917-lab4**       | Function App                        | Hosts your `analyze_trip` HTTP-triggered Python Function         | 1. **Create a resource** → “Function App”.<br>2. Name it `fa-cst8917-lab4`, select your RG, runtime Python 3.11, Linux, and ASP-rgcst8917lab4-b527 plan.<br>3. **Review + create** → **Create**. |
+| **ASP-rgcst8917lab4-b527**| App Service Plan                    | Compute plan for your Function App                               | 1. In **Function App** creation, under **Hosting**, click **Create new** plan.<br>2. Name it `ASP-rgcst8917lab4-b527`, choose “Consumption (Serverless)”.                                    |
+| **stfcst8917lab4**        | Storage Account                     | Stores function state, logs, triggers                            | 1. In **Function App** creation, under **Storage**, click **Create new**.<br>2. Name it `stfcst8917lab4`, choose Standard – StorageV2.<br>3. Complete creation.                             |
+| **la-cst8917-tripmonitor**| Logic App                           | Orchestrates Event Hub → Function → Teams flow                   | 1. **Create a resource** → “Logic App (Consumption)”.<br>2. Name it `la-cst8917-tripmonitor`, select RG & region.<br>3. **Review + create** → **Create**.                                   |
+| **eventhubs**             | API Connection (Event Hubs)         | Authenticates Logic App to your Event Hub                        | 1. In Logic App designer, click **+ Add connection** → choose “Event Hubs”.<br>2. Authorize with your subscription and select `ns-cst8917-lab4`.                                          |
+| **teams**                 | API Connection (Microsoft Teams)    | Authenticates Logic App to post Adaptive Cards in Teams          | 1. In Logic App designer, click **+ Add connection** → “Microsoft Teams”.<br>2. Sign in with your tenant account and grant permissions.                                                  |
+| **Application Insights**  | Application Insights instance       | Captures logs & metrics for Function App & Logic App             | 1. **Create a resource** → “Application Insights”.<br>2. Name it `fa-cst8917-lab4-ai`, select your RG & region, set resource type to “General”.<br>3. Create.                         |
+
