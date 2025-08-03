@@ -124,8 +124,8 @@ Catches any unexpected error, logs it, and returns a 400 with the error message.
         return func.HttpResponse(f"Error: {str(e)}", status_code=400)
 
 ```
-- Trip Simulator (simulate_trips.py)
-Generates and sends a configurable number of realistic, randomized taxi trip events to your Event Hub: it constructs each event’s JSON payload with a random vendor ID, a floating-point trip distance between 0.2 and 15 miles, a passenger count of 1–6, and a random payment type (cash or card), batches these into payloads that respect the Event Hub’s maximum message size, and streams them at a controlled rate (default 50 events at 0.2 s intervals) so you can stress-test your end-to-end Logic App → Function → Teams pipeline under near real-world conditions.
+## Trip Simulator (simulate_trips.py)
+- Generates and sends a configurable number of realistic, randomized taxi trip events to your Event Hub: it constructs each event’s JSON payload with a random vendor ID, a floating-point trip distance between 0.2 and 15 miles, a passenger count of 1–6, and a random payment type (cash or card), batches these into payloads that respect the Event Hub’s maximum message size, and streams them at a controlled rate (default 50 events at 0.2 s intervals) so you can stress-test your end-to-end Logic App → Function → Teams pipeline under near real-world conditions.
 
 ```bash
 # simulator/simulate_trips.py
