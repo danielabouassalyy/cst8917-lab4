@@ -1,6 +1,7 @@
 # CST8917 Lab 4 – Real-Time Trip Event Analysis
 Student: Daniel Abou-Assaly
-Youtube link:
+[Watch the Demo Video](https://youtu.be/QxHd3hAbwQ0)
+
 
 ## Azure Resources and How to Provision Them
 
