@@ -16,3 +16,18 @@ Youtube link:
 | **teams**                 | API Connection (Microsoft Teams)    | Authenticates Logic App to post Adaptive Cards in Teams          | 1. In Logic App designer, click **+ Add connection** → “Microsoft Teams”.<br>2. Sign in with your tenant account and grant permissions.                                                  |
 | **Application Insights**  | Application Insights instance       | Captures logs & metrics for Function App & Logic App             | 1. **Create a resource** → “Application Insights”.<br>2. Name it `fa-cst8917-lab4-ai`, select your RG & region, set resource type to “General”.<br>3. Create.                         |
 
+### Architecture Overview
+
+Our solution is a fully serverless, real-time pipeline:
+
+1. **Event Hub** (`eh-cst8917-trips`) collects incoming trip JSON messages.  
+2. **Logic App** (`la-cst8917-tripmonitor`) polls the hub every minute, or can be manually triggered for a demo.  
+3. Inside the Logic App:
+   - **Trigger**: “When events are available in Event Hub” (Content-Type=`application/json`, splitOn=`@triggerBody()`).
+   - **HTTP**: Posts each event’s `.ContentData` payload to the Azure Function endpoint.
+   - **For each** response object:
+     - **Condition** on `isInteresting`:
+       - **False** →  “No Issues” Adaptive Card  
+       - **True** → nested **Condition** on `insights` array:
+         - Contains `SuspiciousVendorActivity` → ⚠ Suspicious card  
+         - Else →  Interesting card  
